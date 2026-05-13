@@ -32,10 +32,10 @@ function App() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('https://pdf-chatter-ouph.onrender.com', {
+      const response = await fetch('https://pdf-chatter-ouph.onrender.com/upload', {
         method: 'POST',
         body: formData,
-      });
+        });
       
       if (response.ok) {
         setUploadStatus('Ready to chat!');
@@ -61,11 +61,11 @@ function App() {
     setIsTyping(true);
 
     try {
-      const response = await fetch('http://localhost:8000/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.text }),
-      });
+      const response = await fetch('https://pdf-chatter-ouph.onrender.com/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMessage.text }),
+      });;
 
       const data = await response.json();
       
