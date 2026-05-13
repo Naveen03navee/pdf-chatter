@@ -1,0 +1,15 @@
+# Environments
+venv/
+.env
+__pycache__/
+
+# Databases & Local Data
+chroma_db/
+data/
+
+# Frontend dependencies
+frontend/node_modules/
+frontend/dist/
+
+# OS files
+.DS_Store
