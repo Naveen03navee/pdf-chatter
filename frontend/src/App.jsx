@@ -32,7 +32,7 @@ function App() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('https://pdf-chatter-99ou.onrender.com', {
+      const response = await fetch('https://pdf-chatter-ouph.onrender.com', {
         method: 'POST',
         body: formData,
       });
