@@ -9,3 +9,4 @@ langchain-classic
 chromadb
 pypdf
 python-dotenv
+pysqlite3-binary
