@@ -63,7 +63,11 @@ async def upload_pdf(file: UploadFile = File(...)):
         chunks = text_splitter.split_documents(pages)
 
         # LIGHTWEIGHT EMBEDDINGS: Keeps RAM usage under 150MB
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        # Replace your embeddings line with this:
+        embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/text-embedding-004",
+    task_type="retrieval_document"
+)
         vector_db = Chroma.from_documents(documents=chunks, embedding=embeddings)
 
         return {"message": "Document processed successfully"}
