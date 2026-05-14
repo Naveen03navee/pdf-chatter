@@ -1,7 +1,10 @@
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import tempfile
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -10,6 +13,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # LangChain Imports
+
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -103,3 +107,8 @@ async def chat_with_pdf(request: ChatRequest):
 @app.get("/")
 def read_root():
     return {"message": "PDF Chatter API is running securely!"}
+app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+@app.get("/{catchall:path}")
+def serve_react_app(catchall: str):
+    # This assumes your api.py is in the root folder and your frontend is in a folder named 'frontend'
+    return FileResponse("frontend/dist/index.html")
