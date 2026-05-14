@@ -5,18 +5,15 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import os
 import tempfile
 from fastapi import FastAPI, UploadFile, File, HTTPException
-# ... rest of your imports ...
-import os
-import tempfile
-from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-# LangChain & Google AI Imports
+# LangChain Imports
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
@@ -27,12 +24,11 @@ load_dotenv()
 app = FastAPI()
 
 # --- CORS POLICY ---
-# This is the "handshake" that allows your React app to talk to this backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://pdf-chatter-1.onrender.com" # Your actual React UI URL
+        "https://pdf-chatter-1.onrender.com" 
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -62,12 +58,9 @@ async def upload_pdf(file: UploadFile = File(...)):
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         chunks = text_splitter.split_documents(pages)
 
-        # LIGHTWEIGHT EMBEDDINGS: Keeps RAM usage under 150MB
-        # Replace your embeddings line with this:
-        embeddings = GoogleGenerativeAIEmbeddings(
-    model="models/text-embedding-004",
-    task_type="retrieval_document"
-)
+        # LIGHTWEIGHT FASTEMBED (No Google API needed for this step!)
+        embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
+        
         vector_db = Chroma.from_documents(documents=chunks, embedding=embeddings)
 
         return {"message": "Document processed successfully"}
@@ -82,6 +75,8 @@ async def chat_with_pdf(request: ChatRequest):
 
     try:
         retriever = vector_db.as_retriever(search_kwargs={"k": 5})
+        
+        # GEMINI IS STILL USED FOR THE CHAT RESPONSES
         llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3)
         
         system_prompt = (
