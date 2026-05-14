@@ -10,3 +10,5 @@ chromadb
 pypdf
 python-dotenv
 pysqlite3-binary
+fastembed
+aiofiles
