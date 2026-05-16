@@ -1,22 +1,21 @@
-# Use Python 3.11
+# 1. Start with Python
 FROM python:3.11-slim
 
-# Install system dependencies for ChromaDB and PDF processing
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
+# 2. Set the working directory
 WORKDIR /app
 
-# Copy requirements and install
+# 3. Copy the requirements file
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download the embedding model to save time during container start
-RUN python -c "from langchain_huggingface import HuggingFaceEmbeddings; HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')"
+# 4. Use Docker BuildKit to cache the downloads like a save-point!
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --default-timeout=1000 --retries=10 -r requirements.txt
 
+# 5. Copy the rest of your code
 COPY . .
 
-EXPOSE 8000
+# 6. Expose the port
+EXPOSE 10000
 
-CMD ["python", "api.py"]
+# 7. Start the server
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "10000"]
